@@ -2,19 +2,21 @@
 #include <TM1637Display.h>
 #include <SoftwareSerial.h>
 
-SoftwareSerial radio(10, 11); //RX and TX of HC-12 module
 // Define the connections pins for display
 #define CLK 6
 #define DIO 7
+#define rxPin 12
+#define txPin 11
 
 // Define other pin connections
 //#define UP_BUTTON 2
 #define RESET_BUTTON 3
 #define START_BUTTON 4
 #define BUZZER 9
+#define LED 2
 
 int duration;
-
+SoftwareSerial HC12(rxPin, txPin); //RX and TX of HC-12 module
 // Create display object of type TM1637Display:
 TM1637Display display = TM1637Display(CLK, DIO);
 
@@ -34,33 +36,41 @@ TM1637Display display = TM1637Display(CLK, DIO);
 //};
 
 void setup() {
+  // Define pin modes for TX and RX
+  pinMode(rxPin, INPUT);
+  pinMode(txPin, OUTPUT);
+  
   Serial.begin(9600);
-  radio.begin(9600);
-  //pinMode(UP_BUTTON, INPUT_PULLUP);
+  HC12.begin(9600);
+
   pinMode(RESET_BUTTON, INPUT_PULLUP);
   pinMode(START_BUTTON, INPUT_PULLUP);
   pinMode(BUZZER, OUTPUT);
+  pinMode(LED, OUTPUT);
   float duration = 0;              // Default to 30 seconds
   display.setBrightness(3);   // 0 to 7 change if required
 }
 
 void loop() {
   // Function will checks for time change buttons and only return 
-  //TestRadio();
+  TestRadio();
   // when start button pressed
-  WaitForStart();
+  //WaitForStart();
   // Start the duration timer
-  TimeDuration();
+  //TimeDuration();
 }
 
 void TestRadio(){
   //Serial.write("Read Radio");
-  if(radio.available()){
-    Serial.write(radio.read());
+  digitalWrite(LED,LOW);
+  if(HC12.available()){
+    digitalWrite(LED,HIGH);
+    Serial.write(HC12.read());
   }
 
   if(Serial.available()){
-    radio.write(Serial.read());
+    //digitalWrite(LED,HIGH);
+    HC12.write(Serial.read());
   }
 }
 
