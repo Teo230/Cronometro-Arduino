@@ -13,9 +13,6 @@ int distance;
 void setup() {
   Serial.begin(9600);
   HC12.begin(9600);
-  // Define pin modes for TX and RX
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
   
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
@@ -26,7 +23,7 @@ void loop() {
   CheckDistance();
   if(max_distance >= distance && distance >= min_distance){
     digitalWrite(led, HIGH);
-    HC12.println(1);
+    HC12.write(230);
     //Serial.println("END");
     Serial.print("distance: ");
     Serial.println(distance);

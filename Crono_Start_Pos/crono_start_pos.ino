@@ -5,7 +5,7 @@
 // Define the connections pins for display
 #define CLK 6
 #define DIO 7
-#define rxPin 12
+#define rxPin 10
 #define txPin 11
 
 // Define other pin connections
@@ -16,6 +16,7 @@
 #define LED 2
 
 int duration;
+int code = 0;
 SoftwareSerial HC12(rxPin, txPin); //RX and TX of HC-12 module
 // Create display object of type TM1637Display:
 TM1637Display display = TM1637Display(CLK, DIO);
@@ -36,10 +37,6 @@ TM1637Display display = TM1637Display(CLK, DIO);
 //};
 
 void setup() {
-  // Define pin modes for TX and RX
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
-  
   Serial.begin(9600);
   HC12.begin(9600);
 
@@ -53,11 +50,11 @@ void setup() {
 
 void loop() {
   // Function will checks for time change buttons and only return 
-  TestRadio();
   // when start button pressed
-  //WaitForStart();
+  WaitForStart();
   // Start the duration timer
-  //TimeDuration();
+  TimeDuration();
+  //TestRadio();
 }
 
 void TestRadio(){
@@ -76,7 +73,13 @@ void TestRadio(){
 
 void WaitForStart(){
   while (digitalRead(START_BUTTON) == HIGH){
+    code = 0;
     duration = 0;
+    
+    HC12.flush();
+    HC12.end();
+    HC12.begin(9600);
+    
     ShowTime(duration);
   }
   // Start button has been pressed
@@ -92,11 +95,21 @@ void TimeDuration(){
 
   // Repeatedly check if time is up
   while (duration < timer && digitalRead(RESET_BUTTON) == HIGH){
+
+    //How the fuck I have to flush the fucking buffer
+    while(HC12.available() > 0) {
+      code = HC12.read();
+      Serial.println(code);
+    }
+    if(code == 230) {
+      break;
+    }
     
     // Calculate time elapsed in seconds
     duration = (millis() - startTime) / 10;
     ShowTime(duration);
   }
+  
   if(duration > timer) //sometimes goes over for too much speed
     duration = timer;
   // Time up
@@ -113,7 +126,7 @@ void TimeDuration(){
   delay(500);
   ShowTime(duration);
   delay(500);
-
+  
   while(digitalRead(RESET_BUTTON) == HIGH);
   WaitForStart();
 }
