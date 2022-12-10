@@ -13,7 +13,8 @@
 #define RESET_BUTTON 3
 #define START_BUTTON 4
 #define BUZZER 9
-#define LED 2
+#define LED_BOARD 2
+#define LED_RADIO 12
 
 int duration;
 int code = 0;
@@ -43,13 +44,15 @@ void setup() {
   pinMode(RESET_BUTTON, INPUT_PULLUP);
   pinMode(START_BUTTON, INPUT_PULLUP);
   pinMode(BUZZER, OUTPUT);
-  pinMode(LED, OUTPUT);
+  pinMode(LED_BOARD, OUTPUT);
+  pinMode(LED_RADIO, OUTPUT);
   float duration = 0;              // Default to 30 seconds
   display.setBrightness(3);   // 0 to 7 change if required
 }
 
 void loop() {
   // Function will checks for time change buttons and only return 
+  digitalWrite(LED_BOARD, HIGH);
   // when start button pressed
   WaitForStart();
   // Start the duration timer
@@ -59,14 +62,14 @@ void loop() {
 
 void TestRadio(){
   //Serial.write("Read Radio");
-  digitalWrite(LED,LOW);
+  digitalWrite(LED_RADIO,LOW);
   if(HC12.available()){
-    digitalWrite(LED,HIGH);
+    digitalWrite(LED_RADIO,HIGH);
     Serial.write(HC12.read());
   }
 
   if(Serial.available()){
-    //digitalWrite(LED,HIGH);
+    //digitalWrite(LED_RADIO,HIGH);
     HC12.write(Serial.read());
   }
 }
@@ -98,9 +101,11 @@ void TimeDuration(){
 
     //How the fuck I have to flush the fucking buffer
     while(HC12.available() > 0) {
+      digitalWrite(LED_RADIO,HIGH);
       code = HC12.read();
       Serial.println(code);
     }
+    digitalWrite(LED_RADIO,LOW);
     if(code == 230) {
       break;
     }
