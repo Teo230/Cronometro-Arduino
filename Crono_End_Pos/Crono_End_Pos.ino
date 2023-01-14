@@ -4,7 +4,8 @@
 SoftwareSerial HC12(rxPin, txPin); //RX and TX of HC-12 module
 int trigPin = 5;
 int echoPin = 6;
-int led = 8;
+int led_radio = 8;
+int led_board = 2;
 int min_distance = 10;
 int max_distance = 60;
 long duration;
@@ -16,19 +17,21 @@ void setup() {
   
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  pinMode(led, OUTPUT);
+  pinMode(led_radio, OUTPUT);
+  pinMode(led_board, OUTPUT);
 }
 
 void loop() {
+  digitalWrite(led_board, HIGH);
   CheckDistance();
   if(max_distance >= distance && distance >= min_distance){
-    digitalWrite(led, HIGH);
+    digitalWrite(led_radio, HIGH);
     HC12.write(230);
     //Serial.println("END");
     Serial.print("distance: ");
     Serial.println(distance);
   }else{
-    digitalWrite(led, LOW);
+    digitalWrite(led_radio, LOW);
   }
 }
 
