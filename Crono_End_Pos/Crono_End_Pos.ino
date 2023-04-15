@@ -12,6 +12,7 @@ int distance;
 
 int LDR = A0;
 int lightStatus = 0;
+bool checked = false;
 
 void setup() {
   Serial.begin(9600);
@@ -53,7 +54,10 @@ bool laserCheck() {
     //   Serial.println(lightStatus);
     // }
   }else{
-    HC12.write(200);
+    if(!checked){
+      checked = true;
+      HC12.write(200);      
+    }
   }
   // while(lightStatus >= 1000)
   // Serial.println(lightStatus);
