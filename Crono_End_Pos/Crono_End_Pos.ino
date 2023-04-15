@@ -1,15 +1,17 @@
 #include <SoftwareSerial.h>
 #define rxPin 10
 #define txPin 11
+
 SoftwareSerial HC12(rxPin, txPin); //RX and TX of HC-12 module
 int trigPin = 5;
 int echoPin = 6;
 int led_radio = 8;
 int led_board = 2;
-int min_distance = 10;
-int max_distance = 60;
 long duration;
 int distance;
+
+int LDR = A0;
+int lightStatus = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -22,27 +24,38 @@ void setup() {
 }
 
 void loop() {
+  // digitalWrite(led_board, HIGH);
+  // CheckDistance();
+  // if(max_distance >= distance && distance >= min_distance){
+  //   digitalWrite(led_radio, HIGH);
+  //   HC12.write(230);
+  //   //Serial.println("END");
+  //   Serial.print("distance: ");<
+  //   Serial.println(distance);
+  // }else{
+  //   digitalWrite(led_radio, LOW);
+  // }
   digitalWrite(led_board, HIGH);
-  CheckDistance();
-  if(max_distance >= distance && distance >= min_distance){
-    digitalWrite(led_radio, HIGH);
-    HC12.write(230);
-    //Serial.println("END");
-    Serial.print("distance: ");
-    Serial.println(distance);
-  }else{
-    digitalWrite(led_radio, LOW);
-  }
+  laserCheck();
 }
 
-void CheckDistance(){
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH);
-  distance = duration*0.034/2;
-//  Serial.print("distance: ");
-//  Serial.println(distance);
+
+
+bool laserCheck() {
+
+  lightStatus = analogRead(LDR);
+  //Serial.println(lightStatus);
+  if(lightStatus > 1000)
+  {
+    HC12.write(230);
+    //Serial.println("Arrived!");
+    // while(lightStatus < 1000){
+    //   Serial.println(lightStatus);
+    // }
+  }else{
+    HC12.write(200);
+  }
+  // while(lightStatus >= 1000)
+  // Serial.println(lightStatus);
+  // delay(500);
 }
